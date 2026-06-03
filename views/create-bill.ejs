@@ -1,0 +1,432 @@
+<% layout('layout') -%> 
+<section class="bill-creation-container">
+<style>
+    /* --- Base Setup --- */
+    :root {
+        --primary-color: #007bff; /* Aqua/Primary Blue */
+        --secondary-color: #28a745; /* Green (Success) */
+        --danger-color: #dc3545; /* Red (Danger/Remove) */
+        --light-bg: #f8f9fa;
+        --border-color: #e9ecef;
+    }
+
+    /* --- Page Header --- */
+    h2 {
+        color: #343a40;
+        border-bottom: 3px solid var(--primary-color);
+        padding-bottom: 10px;
+        margin-bottom: 25px;
+        font-size: 1.8rem;
+    }
+
+    /* --- Item Controls (Input Area) --- */
+    .item-controls {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end; /* Align items to the bottom */
+        gap: 15px;
+        padding: 20px;
+        margin-bottom: 30px;
+        background-color: var(--light-bg);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    .control-group {
+        display: flex;
+        flex-direction: column;
+        min-width: 150px;
+        flex-grow: 1;
+    }
+    
+    .control-group label {
+        font-weight: 600;
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+        color: #555;
+    }
+
+    .item-controls select, 
+    .item-controls input { 
+        padding: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: 5px;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+    }
+    
+    .item-controls select:focus, 
+    .item-controls input:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+    
+    #rate-input { 
+        background-color: #e9e9e9; /* Clearly indicates readonly status */
+        color: #6c757d;
+    } 
+    
+    .add-item-btn {
+        padding: 10px 20px;
+        height: 44px; /* Align height with input fields */
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s;
+    }
+    .add-item-btn:hover {
+        background-color: #0056b3;
+    }
+
+    /* --- Bill Items Table --- */
+    h3 {
+        margin-top: 25px;
+        margin-bottom: 15px;
+        color: #495057;
+    }
+
+    .items-table {
+        width: 100%; 
+        border-collapse: collapse; 
+        margin-bottom: 25px; 
+    }
+    
+    .items-table th { 
+        background-color: var(--primary-color);
+        color: white;
+        border: 1px solid #0056b3;
+        padding: 12px 8px; 
+        text-align: left; 
+        font-weight: 500;
+    }
+    
+    .items-table td { 
+        border: 1px solid var(--border-color); 
+        padding: 10px 8px; 
+    }
+    
+    .items-table tr:nth-child(even) {
+        background-color: #f3f9ff; /* Light stripe for readability */
+    }
+
+    .remove-btn { 
+        background-color: var(--danger-color); 
+        color: white; 
+        border: none; 
+        padding: 6px 12px; 
+        cursor: pointer; 
+        border-radius: 4px;
+        transition: background-color 0.2s;
+        font-size: 0.9rem;
+    }
+    .remove-btn:hover {
+        background-color: #c82333;
+    }
+
+    /* --- Totals Summary --- */
+    .total-summary {
+        text-align: right;
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 2px solid var(--border-color);
+    }
+    .total-summary div {
+        margin: 8px 0;
+        font-size: 1.1rem;
+    }
+    .total-summary strong {
+        display: inline-block;
+        min-width: 100px;
+        text-align: right;
+        font-weight: bold;
+        color: #343a40;
+    }
+    .total-summary #total-amount-display {
+        font-size: 1.5rem;
+        color: var(--secondary-color);
+        font-weight: bold;
+        padding-top: 10px;
+    }
+
+    /* --- Submit Button --- */
+    .submit-bill-btn {
+        width: 100%;
+        padding: 15px;
+        background-color: var(--secondary-color);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: background-color 0.3s;
+    }
+    .submit-bill-btn:hover {
+        background-color: #1e7e34;
+    }
+
+    /* --- Responsive Adjustments --- */
+    @media (max-width: 768px) {
+        .item-controls {
+            flex-direction: column;
+            gap: 10px;
+        }
+        .control-group {
+            width: 100%;
+        }
+        .add-item-btn {
+            width: 100%;
+        }
+        .items-table th, .items-table td {
+            font-size: 0.8rem;
+        }
+    }
+</style>
+
+<h2>Create Sold Bill</h2>
+
+<div class="item-controls">
+    <div class="control-group" style="flex-grow: 2;">
+        <label for="product-select">Product</label>
+        <select id="product-select" onchange="handleProductChange()">
+            <option value="">-- Select a Product --</option>
+            <% products.forEach(product => { %>
+                <option value="<%= product.pid %>" data-name="<%= product.name %>" data-rate="<%= product.rate %>" data-stock="<%= product.product_count %>">
+                    <%= product.name %> (Available: <%= product.product_count %>)
+                </option>
+            <% }); %>
+        </select>
+    </div>
+    
+    <div class="control-group" style="min-width: 100px;">
+        <label for="quantity-input">Qty</label>
+        <input type="number" id="quantity-input" placeholder="Quantity" min="1" value="1">
+    </div>
+    
+    <div class="control-group" style="min-width: 100px;">
+        <label for="rate-input">Rate</label>
+        <input type="number" id="rate-input" placeholder="Rate" readonly>
+    </div>
+    
+    <div class="control-group" style="min-width: 120px;">
+        <label for="discount-input">Discount (%)</label>
+        <input type="number" id="discount-input" placeholder="Disc (%)" step="0.1" min="0" max="100" value="0">
+    </div>
+    
+    <button type="button" class="add-item-btn" onclick="addItem()">Add Item</button>
+</div>
+
+<h3>Bill Items</h3>
+<table class="items-table">
+    <thead>
+        <tr>
+            <th>Product Name</th>
+            <th>Qty</th>
+            <th>Rate</th>
+            <th>Discount (%)</th> 
+            <th>Subtotal (Pre-Disc)</th>
+            <th>Subtotal (Post-Disc)</th>
+            <th class="action-col">Action</th>
+        </tr>
+    </thead>
+    <tbody id="bill-items-body"></tbody>
+</table>
+
+<div class="total-summary">
+    <div id="subtotal-before-discount">Subtotal (Before Discount): <strong>0.00</strong></div>
+    <div id="total-discount-display">Total Discount: <strong>0.00</strong></div>
+    <div id="total-amount-display">Final Total (After Discount): <strong>0.00</strong></div>
+</div>
+
+<button type="button" class="submit-bill-btn" onclick="submitBill()">Create Full Bill</button>
+
+<script>
+    let billItems = [];
+
+    // --- Utility Functions ---
+
+    function calculateLineTotals(quantity, rate, discount_percent) {
+        const preDiscountSubtotal = quantity * rate;
+        const discountRate = discount_percent / 100;
+        const totalDiscountAmount = preDiscountSubtotal * discountRate;
+        const postDiscountSubtotal = preDiscountSubtotal - totalDiscountAmount;
+
+        return {
+            subtotal_pre_disc: preDiscountSubtotal,
+            subtotal_post_disc: postDiscountSubtotal,
+            discount_amount: totalDiscountAmount
+        };
+    }
+
+    function calculateSummaryTotals() {
+        let totalBeforeDiscount = 0;
+        let finalTotal = 0;
+        let totalDiscount = 0;
+
+        billItems.forEach(item => {
+            const totals = calculateLineTotals(item.quantity, item.rate, item.discount_percent);
+            totalBeforeDiscount += totals.subtotal_pre_disc;
+            finalTotal += totals.subtotal_post_disc;
+            totalDiscount += totals.discount_amount;
+        });
+
+        document.querySelector('#subtotal-before-discount strong').textContent = totalBeforeDiscount.toFixed(2);
+        document.querySelector('#total-discount-display strong').textContent = totalDiscount.toFixed(2);
+        document.querySelector('#total-amount-display strong').textContent = finalTotal.toFixed(2);
+        return { totalBeforeDiscount, finalTotal, totalDiscount };
+    }
+
+    // --- UI Handlers ---
+
+    function handleProductChange() {
+        const productSelect = document.getElementById('product-select');
+        const rateInput = document.getElementById('rate-input');
+        const selectedOption = productSelect.options[productSelect.selectedIndex];
+        
+        if (selectedOption.value) {
+            rateInput.value = selectedOption.getAttribute('data-rate');
+        } else {
+            rateInput.value = '';
+        }
+    }
+
+    function addItem() {
+        const productSelect = document.getElementById('product-select');
+        const quantityInput = document.getElementById('quantity-input');
+        const discountInput = document.getElementById('discount-input');
+
+        const selectedOption = productSelect.options[productSelect.selectedIndex];
+        const productId = productSelect.value;
+        const productName = selectedOption.getAttribute('data-name');
+        const stockCount = parseInt(selectedOption.getAttribute('data-stock'));
+        
+        const rate = parseFloat(selectedOption.getAttribute('data-rate')); 
+        const quantity = parseInt(quantityInput.value);
+        const discount_percent = parseFloat(discountInput.value) || 0; 
+        
+        if (!productId || !quantity || quantity <= 0 || !rate) {
+            alert('Please select a product and enter a valid quantity.');
+            return;
+        }
+
+        if (quantity > stockCount) {
+             alert(`Insufficient stock! Only ${stockCount} available.`);
+             return;
+        }
+
+        // Check for duplicate product ID
+        const existingIndex = billItems.findIndex(item => item.product_id === productId);
+
+        if (existingIndex !== -1) {
+            alert(`Product ${productName} already added. Update the existing item or remove it first.`);
+            return;
+        }
+
+        billItems.push({ 
+            product_id: productId, 
+            product_name: productName, 
+            quantity, 
+            rate, 
+            discount_percent
+        }); 
+        
+        renderTable();
+        
+        // Clear inputs for the next item
+        productSelect.value = '';
+        quantityInput.value = '1';
+        document.getElementById('rate-input').value = ''; 
+        discountInput.value = '0';
+    }
+
+    function removeItem(index) {
+        billItems.splice(index, 1);
+        renderTable();
+    }
+
+    function renderTable() {
+        const tableBody = document.getElementById('bill-items-body');
+        tableBody.innerHTML = '';
+
+        billItems.forEach((item, index) => {
+            const totals = calculateLineTotals(item.quantity, item.rate, item.discount_percent);
+
+            const row = `
+                <tr>
+                    <td>${item.product_name}</td>
+                    <td>${item.quantity}</td>
+                    <td>${item.rate.toFixed(2)}</td>
+                    <td>${item.discount_percent.toFixed(1)}%</td> 
+                    <td>${totals.subtotal_pre_disc.toFixed(2)}</td>
+                    <td>${totals.subtotal_post_disc.toFixed(2)}</td>
+                    <td class="action-col">
+                        <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
+                    </td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+
+        calculateSummaryTotals();
+    }
+
+    async function submitBill() {
+        if (billItems.length === 0) {
+            alert('Cannot create an empty bill. Please add at least one item.');
+            return;
+        }
+
+        const { totalBeforeDiscount, finalTotal, totalDiscount } = calculateSummaryTotals();
+
+        // Prepare items for the server, including calculated subtotals for transactional integrity
+        const itemsForServer = billItems.map(item => {
+            const totals = calculateLineTotals(item.quantity, item.rate, item.discount_percent);
+            return {
+                product_id: item.product_id,
+                quantity: item.quantity,
+                rate: item.rate,
+                discount_percent: item.discount_percent, // Send percentage
+                subtotal_pre_disc: totals.subtotal_pre_disc,
+                subtotal_post_disc: totals.subtotal_post_disc
+            };
+        });
+
+        document.querySelector('.submit-bill-btn').disabled = true;
+
+        try {
+            // NOTE: Using the actual route /sold-bill as per your latest Node.js setup
+            const response = await fetch('/sold-bill', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    billItems: itemsForServer,
+                    subtotal: totalBeforeDiscount,
+                    finalTotal: finalTotal,
+                    totalDiscount: totalDiscount
+                })
+            });
+
+            if (response.ok) {
+                alert('Bill created successfully!');
+                window.location.href = '/dashboard'; 
+            } else {
+                const errorData = await response.json();
+                alert(`Error: ${errorData.message}`);
+            }
+        } catch (err) {
+            console.error('Submission failed:', err);
+            alert('An unexpected error occurred while creating the bill.');
+        } finally {
+             document.querySelector('.submit-bill-btn').disabled = false;
+        }
+    }
+
+    // Initial load setup
+    handleProductChange();
+</script>
+</section>

@@ -1,0 +1,455 @@
+
+<section class="invoice-layout-container p-4">
+    <style>
+        /* --- Base Layout & Colors (Adapted from your existing & invoice examples) --- */
+        :root {
+            --primary-blue: #007bff; /* Main Blue for highlights */
+            --dark-text: #343a40;
+            --light-bg: #f8f9fa; /* Light background for sections */
+            --border-color: #dee2e6;
+            --section-bg-light: #fdfdfd; /* A slightly off-white for content blocks */
+            --success-green: #28a745;
+            --danger-red: #dc3545;
+            --accent-yellow: #ffc107; /* From the example invoice image */
+            --light-blue-strip: #e0f2f7; /* From the example invoice image */
+        }
+
+        .invoice-layout-container {
+            max-width: 1000px; /* Adjusted max-width to match common invoice sizes */
+            margin: 20px auto; /* Add vertical margin */
+            background-color: white;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); /* More pronounced shadow */
+            border-radius: 8px;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* A more formal font */
+            color: var(--dark-text);
+            padding: 0; /* Remove padding from container, sections will add it */
+        }
+
+        /* --- Header: Company Name & Invoice Title --- */
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 40px; /* Ample padding */
+            border-bottom: 2px solid var(--border-color);
+            background-color: #fff; /* White background for header */
+        }
+        .company-logo-name {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: var(--primary-blue); /* Company name in primary blue */
+            letter-spacing: 0.5px;
+        }
+        .invoice-title {
+            font-size: 3em; /* Larger "INVOICE" or "IMPORT BILL" */
+            font-weight: 700;
+            color: #555; /* Slightly muted for contrast with company name */
+            padding: 5px 15px;
+            background-color: var(--light-blue-strip); /* Light blue strip as in example */
+            border-radius: 5px;
+        }
+
+        /* --- Bill Info: Date & Bill No --- */
+        .bill-info-block {
+            padding: 20px 40px;
+            background-color: var(--section-bg-light); /* Light background for this strip */
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end; /* Align to the right */
+            font-size: 1.1em;
+            gap: 30px; /* Space between date and bill no */
+            font-weight: 500;
+        }
+        .bill-info-block div span {
+            font-weight: 700;
+            color: var(--dark-text);
+        }
+
+        /* --- Page Sub-Title (e.g., "Add Import Items") --- */
+        h2.section-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--dark-text);
+            margin-bottom: 25px;
+            padding: 0 40px; /* Align with other content */
+            padding-top: 30px; /* Spacing from above block */
+        }
+
+        /* --- Item Input Card --- */
+        .item-input-card {
+            padding: 25px 40px; /* Consistent padding */
+            background-color: #fff; /* White background */
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+        .item-controls-row {
+            display: flex;
+            gap: 15px; /* Space between controls */
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        .control-group.product-select { flex-basis: 40%; min-width: 250px; }
+        .control-group.quantity-input { flex-basis: 25%; min-width: 150px; }
+        .control-group.add-button {
+            flex-basis: auto;
+            min-width: 120px;
+        }
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-text);
+            font-size: 0.95rem;
+            margin-bottom: 8px; /* Increased margin for labels */
+        }
+        .form-control, .form-select {
+            height: 44px; /* Uniform height */
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 0.95rem;
+        }
+        .btn-primary {
+            background-color: var(--primary-blue);
+            border-color: var(--primary-blue);
+            height: 44px;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        /* --- Bill Items Table --- */
+        h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--dark-text);
+            margin-top: 0;
+            margin-bottom: 20px; /* Spacing before table */
+            padding: 0 40px;
+        }
+        .table-responsive {
+            padding: 0 40px; /* Ensure table also aligns with main content padding */
+            margin-bottom: 30px;
+        }
+        .table {
+            border-collapse: collapse; /* Make table borders more flush */
+            width: 100%;
+        }
+        .table thead th {
+            background-color: var(--primary-blue); /* Blue header for table */
+            color: white;
+            font-weight: 500;
+            padding: 15px 12px; /* More padding in table header */
+            border: 1px solid #0056b3;
+            text-align: left;
+        }
+        .table tbody td {
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+        .table-striped tbody tr:nth-child(odd) {
+            background-color: #f8f9fa; /* Light stripe */
+        }
+        .table-striped tbody tr:nth-child(even) {
+            background-color: #fff; /* White stripe */
+        }
+
+        /* --- Table Footer (Totals) --- */
+        .table tfoot tr {
+            background-color: var(--light-bg); /* Light grey for footer row */
+            font-weight: 600;
+            border-top: 2px solid var(--primary-blue); /* Stronger top border */
+        }
+        .table tfoot td {
+            padding: 15px 12px;
+            color: var(--dark-text);
+            font-size: 1.1em;
+        }
+
+        /* --- Action Buttons --- */
+        .action-buttons-block {
+            padding: 0 40px 40px 40px; /* Padding at bottom of page */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn-success {
+            background-color: var(--success-green);
+            border-color: var(--success-green);
+            font-weight: 600;
+            font-size: 1.2rem;
+            padding: 0.75rem 1.5rem; /* Larger padding for main button */
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+        .btn-success:disabled {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .btn-secondary {
+            font-weight: 500;
+            padding: 0.75rem 1.2rem;
+            border-radius: 5px;
+            background-color: #6c757d;
+            border-color: #6c757d;
+            color: white;
+            transition: background-color 0.2s;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+        .btn-danger {
+            background-color: var(--danger-red);
+            border-color: var(--danger-red);
+            padding: 0.4rem 0.8rem; /* Smaller remove button */
+            font-size: 0.85rem;
+            border-radius: 4px;
+        }
+
+        /* --- Responsive Adjustments --- */
+        @media (max-width: 768px) {
+            .invoice-header, .bill-info-block, .item-input-card, h2.section-title, h3, .table-responsive, .action-buttons-block {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+            .invoice-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            .invoice-title {
+                font-size: 2.5em;
+                width: 100%; 
+                text-align: center;
+            }
+            .bill-info-block {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .item-controls-row {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+            }
+            .control-group {
+                flex-basis: 100%;
+            }
+            .control-group.add-button {
+                width: 100%;
+            }
+            .action-buttons-block {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .btn-success, .btn-secondary {
+                width: 100%;
+            }
+        }
+    </style>
+
+    <div class="invoice-header">
+        <div class="company-logo-name">Sri Vasavi Aqua Needs</div>
+        <div class="invoice-title">IMPORT BILL</div>
+    </div>
+
+    <div class="bill-info-block">
+        <div>Date: <span><%= new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %></span></div>
+        <div>Bill NO: <span>#<%= Math.floor(100000 + Math.random() * 900000) %></span></div>
+    </div>
+
+    <h2 class="section-title">Create Import Bill</h2>
+
+    <div class="item-input-card pt-0 pb-3">
+        <div class="control-group">
+            <label for="companyNameInput" class="form-label">Imported From (Company Name)</label>
+            <input type="text" id="companyNameInput" class="form-control" placeholder="Enter Supplier/Company Name" required>
+        </div>
+    </div>
+
+    <div class="item-input-card pt-3 pb-0">
+        <div class="item-controls-row">
+            
+            <div class="control-group product-select">
+                <label for="productSelect" class="form-label">Product</label>
+                <select id="productSelect" class="form-select">
+                    <option value="">-- Select a Product --</option>
+                    <% products.forEach(product => { %>
+                        <option value="<%= product.pid %>" data-name="<%= product.name %>">
+                            <%= product.name %> (Stock: <%= product.product_count %>)
+                        </option>
+                    <% }); %>
+                </select>
+            </div>
+            
+            <div class="control-group quantity-input">
+                <label for="qtyInput" class="form-label">Quantity to Import</label>
+                <input type="number" id="qtyInput" class="form-control" placeholder="Quantity" min="1" value="1">
+            </div>
+            
+            <div class="control-group add-button">
+                <label class="form-label invisible d-none d-sm-block">Action</label> 
+                <button type="button" class="btn btn-primary w-100" onclick="addItem()">Add Item</button>
+            </div>
+        </div>
+    </div>
+    
+    <h3>Bill Items Summary</h3>
+    <form id="importBillForm">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th class="col-8">Product Name</th>
+                        <th class="text-center col-2">Qty</th>
+                        <th class="text-center col-2" style="width: 100px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="billBody">
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td class="text-end" colspan="2">Total Unique Products: <strong id="totalProducts">0</strong></td>
+                        <td class="text-center" colspan="1">Total Quantity: <strong id="totalQty">0</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="action-buttons-block">
+            <a href="/dashboard" class="btn btn-secondary">Back to Dashboard</a>
+            <button type="submit" class="btn btn-success btn-lg" id="createBillBtn" disabled>Create Full Import Bill</button>
+        </div>
+    </form>
+</section>
+
+<script>
+    let billItems = []; 
+
+    function renderTable() {
+        const tbody = document.getElementById('billBody');
+        tbody.innerHTML = '';
+        let totalQty = 0;
+
+        billItems.forEach((item, index) => {
+            const row = tbody.insertRow();
+            row.insertCell().innerText = item.product_name;
+            
+            const qtyCell = row.insertCell();
+            qtyCell.classList.add('text-center');
+            qtyCell.innerText = item.quantity;
+            
+            const actionCell = row.insertCell();
+            actionCell.classList.add('text-center'); 
+            const removeBtn = document.createElement('button');
+            removeBtn.innerText = 'Remove';
+            removeBtn.className = 'btn btn-sm btn-danger';
+            removeBtn.onclick = () => removeItem(index);
+            actionCell.appendChild(removeBtn);
+
+            totalQty += parseInt(item.quantity);
+        });
+
+        document.getElementById('totalProducts').innerText = billItems.length;
+        document.getElementById('totalQty').innerText = totalQty;
+        document.getElementById('createBillBtn').disabled = billItems.length === 0;
+    }
+
+    function addItem() {
+        const productSelect = document.getElementById('productSelect');
+        const productId = productSelect.value;
+        const quantity = document.getElementById('qtyInput').value;
+
+        if (!productId || parseInt(quantity) <= 0) {
+            alert('Please select a product and enter a valid quantity.');
+            return;
+        }
+        
+        const productName = productSelect.options[productSelect.selectedIndex].getAttribute('data-name');
+
+        const newItem = {
+            product_id: productId,
+            product_name: productName,
+            quantity: parseInt(quantity)
+        };
+
+        const existingIndex = billItems.findIndex(item => item.product_id === newItem.product_id);
+        if (existingIndex > -1) {
+            billItems[existingIndex].quantity += newItem.quantity;
+        } else {
+            billItems.push(newItem);
+        }
+
+        renderTable();
+        
+        // Reset inputs
+        productSelect.value = "";
+        document.getElementById('qtyInput').value = 1;
+    }
+
+    function removeItem(index) {
+        billItems.splice(index, 1);
+        renderTable();
+    }
+
+    document.getElementById('importBillForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // **NEW: Capture Company Name**
+        const companyName = document.getElementById('companyNameInput').value;
+        
+        if (!companyName.trim()) {
+            alert("Please enter the company name you are importing from.");
+            document.getElementById('companyNameInput').focus();
+            return;
+        }
+        
+        if (billItems.length === 0) {
+            alert("Please add at least one item to the bill.");
+            return;
+        }
+
+        document.getElementById('createBillBtn').disabled = true;
+
+        try {
+            const response = await fetch('/import-bill', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    items: billItems,
+                    importedFrom: companyName // Send the new data field
+                }) 
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert(result.message);
+                window.location.href = '/dashboard'; 
+            } else {
+                alert(`Error: ${result.message}`);
+            }
+        } catch (error) {
+            console.error('Submission Error:', error);
+            alert('An unexpected error occurred during submission.');
+        } finally {
+            document.getElementById('createBillBtn').disabled = false;
+        }
+    });
+
+    renderTable(); // Initial rendering
+</script>

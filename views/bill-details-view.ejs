@@ -1,0 +1,178 @@
+
+
+<style>
+    /* --- Final Professional Styling (All conflicts removed) --- */
+    :root {
+        --primary-color: #17a2b8; /* Info/Blue */
+        --dark-header: #343a40;
+        --light-bg: #f8f9fa;
+        --danger-text: #dc3545;
+        --success-btn: #28a745;
+    }
+
+    /* NOTE: We rely on the layout.ejs file for <body> and general font */
+
+    .container { 
+        max-width: 1000px; 
+        margin: 40px auto; 
+        border-radius: 12px; 
+        padding: 30px !important; 
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        background-color: white;
+    }
+    h2 { 
+        font-weight: 700; 
+        color: var(--dark-header); 
+        padding-bottom: 8px; 
+        margin-bottom: 25px !important; 
+        border-bottom: 4px solid var(--primary-color); 
+        display: block;
+        font-size: 2rem;
+        text-align: center;
+    }
+    h3 { 
+        font-size: 1.5rem; 
+        color: var(--primary-color); 
+        margin-top: 30px !important; 
+        padding-left: 10px; 
+        border-left: 5px solid var(--primary-color); 
+        font-weight: 600;
+    }
+
+    /* Summary Detail Block */
+    .summary-details { 
+        border: 1px solid #e9ecef; 
+        border-radius: 8px; 
+        padding: 25px !important; 
+        line-height: 1.8; 
+        background-color: var(--light-bg); 
+    }
+    .summary-details strong { 
+        font-weight: 600; 
+        color: #1a4f78; 
+        display: inline-block; 
+        min-width: 150px; 
+    }
+    .summary-details h4 { 
+        font-size: 1.5rem; 
+        padding-top: 15px; 
+        margin-top: 15px;
+        border-top: 2px dashed #e9ecef; 
+        color: var(--dark-header);
+    }
+    .customer-info { 
+        margin-top: 15px; 
+        padding-top: 15px; 
+        border-top: 1px solid #eee; 
+    }
+
+    /* Table Styling */
+    .table-responsive {
+        margin-top: 20px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    .table thead th { 
+        background-color: var(--dark-header) !important; 
+        color: white; 
+        font-weight: 700; 
+        padding: 12px 15px; 
+    }
+    .table-striped tbody tr:nth-of-type(odd) { 
+        background-color: var(--light-bg); 
+    }
+    .table td, .table th { 
+        vertical-align: middle; 
+        padding: 10px 15px; 
+    }
+    .btn-danger {
+        background-color: var(--danger-text);
+        border-color: var(--danger-text);
+    }
+</style>
+
+<div class="container mt-5 p-4 border rounded-lg shadow-lg bg-light">
+    
+    <% const isSale = billType === 'sale'; %>
+
+    <a href="/reports?type=<%= billType %>&level=day" class="btn btn-outline-secondary mb-4">
+        « Back to <%= billType.toUpperCase() %> Daily Report
+    </a>
+
+    <h2 class="mb-4 text-secondary">
+        📄 <%= billType.toUpperCase() %> Bill Details #<%= bill.bill_id %>
+    </h2>
+
+    <div class="summary-details p-3 mb-4 rounded shadow-sm">
+        <p><strong>Bill ID:</strong> <%= bill.bill_id %></p>
+        <p><strong>Date & Time:</strong> <%= new Date(bill.bill_date).toLocaleString() %></p>
+        <p><strong>Created By:</strong> <%= bill.created_by || 'N/A' %></p>
+        
+        <!-- === SALE FIELDS (Customer & Totals) === -->
+        <% if (isSale) { %>
+            <div class="customer-info">
+                <p><strong>Customer Name:</strong> <%= bill.customer_name || 'N/A' %></p>
+                <p><strong>Phone Number:</strong> <%= bill.customer_phone || 'N/A' %></p>
+            </div>
+            <hr>
+            <p><strong>Subtotal (Before Discount):</strong> <span class="font-weight-bold"><%= Number(bill.subtotal_before_discount).toFixed(2) %></span></p>
+            <p><strong>Total Discount:</strong> <span class="text-danger font-weight-bold"><%= Number(bill.total_discount).toFixed(2) %></span></p>
+            <h4 class="mt-3 text-primary"><strong>Final Total (Net):</strong> <%= Number(bill.final_total_after_discount).toFixed(2) %></h4>
+        
+        <!-- === IMPORT FIELDS === -->
+        <% } else { %>
+            <div class="customer-info">
+                <p><strong>Imported From:</strong> <%= bill.imported_from || 'N/A' %></p>
+            </div>
+            <h4 class="mt-3 text-primary">Total Quantity: <%= items.reduce((sum, item) => sum + Number(item.qty), 0) %></h4>
+        <% } %>
+    </div>
+    
+    <h3 class="mt-4 mb-3 text-info border-bottom pb-2">📦 Bill Items</h3>
+    
+    <% if (items && items.length > 0) { %>
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover shadow-sm">
+                <thead class="bg-dark text-white">
+                    <tr>
+                        <th>Product Name</th>
+                        <th class="text-center">Count</th>
+                        <% if (isSale) { %>
+                            <th class="text-right">Sale Price</th>
+                            <th class="text-center">Discount (%)</th>
+                            <th class="text-right">Subtotal (Pre-Disc)</th>
+                            <th class="text-right">Price After Discount</th>
+                        <% } %>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% items.forEach(item => { %>
+                        <tr>
+                            <td><%= item.product_name %></td>
+                            <td class="text-center"><%= item.qty %></td>
+                            
+                            <% if (isSale) { %>
+                                <td class="text-right"><%= Number(item.rate).toFixed(2) %></td>
+                                <td class="text-center"><%= Number(item.discount_percent).toFixed(1) %>%</td>
+                                <td class="text-right"><%= Number(item.subtotal_pre_disc).toFixed(2) %></td>
+                                <td class="text-right"><%= Number(item.subtotal_post_disc).toFixed(2) %></td>
+                            <% } %>
+                            
+                            <td>
+                                <button class="btn btn-sm btn-danger disabled" title="Editing not enabled in report view">Remove</button>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    <% } else { %>
+        <p class="alert alert-warning text-center p-3 rounded">No items found for this bill.</p>
+    <% } %>
+
+    <div class="text-center mt-5">
+        <a href="/dashboard" class="btn btn-lg btn-success">« Back to Dashboard</a>
+    </div>
+</div>

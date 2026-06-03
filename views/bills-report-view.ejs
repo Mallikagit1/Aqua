@@ -1,0 +1,256 @@
+
+<style>
+    /* --- Base Styles (Verified Clean Structure) --- */
+    body { 
+        font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        background-color: #f4f6f9; 
+        color: #343a40; 
+    }
+    .container { 
+        max-width: 1100px;
+        margin: 40px auto; 
+        border-radius: 12px; 
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); 
+        padding: 30px;
+    }
+    h2 { 
+        font-weight: 700; 
+        color: #1a4f78; 
+        padding-bottom: 8px; 
+        margin-bottom: 30px !important; 
+        border-bottom: 4px solid #17a2b8; 
+        display: inline-block; 
+        font-size: 2rem;
+    }
+    h3 { 
+        font-size: 1.5rem; 
+        color: #17a2b8; 
+        margin-top: 30px !important; 
+        padding-left: 10px; 
+        border-left: 5px solid #17a2b8; 
+        font-weight: 600;
+    }
+    /* Buttons and Actions */
+    .actions {
+        background-color: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    .btn {
+        transition: all 0.2s ease-in-out;
+        border-radius: 6px;
+    }
+    .btn-group .btn {
+        border-radius: 0;
+    }
+    .btn-detail-link {
+        padding: 4px 10px !important; 
+        font-size: 0.9rem; 
+    }
+    /* Table Structure and Styling */
+    .table-responsive {
+        margin-top: 20px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    }
+    .table th, .table td {
+        vertical-align: middle;
+        padding: 12px 15px; 
+        font-size: 0.9rem;
+    }
+    .table thead th {
+        background-color: #343a40 !important; 
+        color: #ffffff; 
+        font-weight: 600; 
+        text-transform: uppercase;
+        border-bottom: none !important;
+    }
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: #f8f9fa;
+    }
+    .table-info.font-weight-bold td {
+        background-color: #d1ecf1 !important; 
+        font-size: 1.1em;
+        border-top: 3px solid #17a2b8;
+        font-weight: 700;
+    }
+    .text-right {
+        text-align: right;
+    }
+</style>
+
+<div class="container mt-5 p-4 border rounded-lg shadow-lg bg-light">
+    
+    <% 
+        const isTypeSelected = typeof billType !== 'undefined' && (billType === 'sale' || billType === 'import');
+        const isSale = billType === 'sale';
+        const isItemized = level === 'monthly_detail';
+    %>
+
+    <% if (!isTypeSelected) { %>
+        <h2 class="text-center mb-4 text-primary font-weight-bold">🧾 Select Bill Report Type</h2>
+        <div class="selector text-center mb-4">
+            <p class="lead text-muted">Please choose the type of transactions you wish to view:</p>
+            <a href="/reports?type=sale&level=day" class="btn btn-success btn-lg m-2 shadow-sm">📈 View Sold Bills Report</a>
+            <a href="/reports?type=import&level=day" class="btn btn-info btn-lg m-2 shadow-sm">🚢 View Import Bills Report</a>
+        </div>
+        <div class="text-center">
+            <a href="/dashboard" class="btn btn-lg btn-outline-dark mt-3 shadow-sm">« Back to Dashboard</a>
+        </div>
+        
+    <% } else { %>
+        <h2 class="mb-4 text-center text-secondary"><%= reportType %> Report</h2>
+        
+        <div class="actions my-4 d-flex flex-wrap justify-content-center align-items-center">
+            <p class="mb-2 mb-md-0 mr-3 font-weight-bold">View Report By:</p>
+            <div class="btn-group" role="group" aria-label="Report Level Selector">
+                <a href="/reports?type=<%= billType %>&level=day" class="btn btn-sm <%= level === 'day' ? 'btn-dark active' : 'btn-outline-dark' %>">Daily Bills (Detailed)</a>
+                <a href="/reports?type=<%= billType %>&level=month" class="btn btn-sm <%= level === 'month' ? 'btn-dark active' : 'btn-outline-dark' %>">Monthly Summary</a>
+                <a href="/reports?type=<%= billType %>&level=year" class="btn btn-sm <%= level === 'year' ? 'btn-dark active' : 'btn-outline-dark' %>">Yearly Summary</a>
+            </div>
+            <a href="/dashboard" class="btn btn-sm btn-outline-secondary ml-3 mt-2 mt-md-0">« Dashboard</a>
+        </div>
+
+        <% if (data && data.length > 0) { %>
+            
+            <% if (isItemized) { %>
+                <h3 class="mt-4 mb-3 text-info border-bottom pb-2">📦 All Items in <%= new Date(data[0].bill_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long' }) %></h3>
+                
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered table-hover shadow-sm">
+                        <thead class="bg-dark text-white">
+                            <tr>
+                                <th scope="col">Date</th>
+                                <th scope="col">Bill ID</th>
+                                <th scope="col">Product Name</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Rate</th>
+                                <th scope="col" class="text-right">Net Item Value</th>
+                                <% if (isSale) { %>
+                                    <th scope="col">Customer</th>
+                                <% } else { %>
+                                    <th scope="col">Source (Imported From)</th>
+                                <% } %>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% data.forEach(item => { %>
+                                <tr>
+                                    <td><%= new Date(item.bill_date).toLocaleDateString() %></td>
+                                    <td>
+                                        <a href="/reports?type=<%= billType %>&billId=<%= item.bill_id %>" class="btn btn-sm btn-outline-info btn-detail-link">
+                                            #<%= item.bill_id %>
+                                        </a>
+                                    </td>
+                                    <td><%= item.product_name %></td>
+                                    <td class="text-center"><%= item.quantity %></td>
+                                    <td class="text-right"><%= Number(item.rate).toFixed(2) %></td>
+                                    <td class="text-right"><%= Number(item.net_item_value).toFixed(2) %></td>
+                                    <% if (isSale) { %>
+                                        <td><%= item.customer_name || 'N/A' %></td>
+                                    <% } else { %>
+                                        <td><%= item.imported_from || 'N/A' %></td>
+                                    <% } %>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+
+            <% } else if (level === 'day') { %>
+                <h3 class="mt-4 mb-3 text-info border-bottom pb-2">📦 Individual Bills (Sorted by Date)</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered table-sm table-hover shadow-sm">
+                        <thead class="bg-dark text-white">
+                            <tr>
+                                <th scope="col"># ID</th>
+                                <th scope="col">Date & Time</th>
+                                <th scope="col" class="text-right">Amount <%= isSale ? '(Net)' : '' %></th>
+                                <th scope="col">Created By</th>
+                                <% if (isSale) { %>
+                                    <th scope="col">Customer Name</th>
+                                    <th scope="col">Phone</th>
+                                <% } else { %>
+                                    <th scope="col" colspan="2">Imported From</th>
+                                <% } %>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% data.forEach(bill => { %>
+                                <tr>
+                                    <td>
+                                        <a href="/reports?type=<%= billType %>&billId=<%= bill.id %>" class="btn btn-sm btn-outline-info btn-detail-link shadow-sm">
+                                            #<%= bill.id %>
+                                        </a>
+                                    </td>
+                                    <td><%= new Date(bill.created_at).toLocaleString() %></td>
+                                    <td class="text-right"><%= Number(bill.total_value).toFixed(2) %></td>
+                                    <td><%= bill.created_by %></td>
+                                    
+                                    <% if (isSale) { %>
+                                        <td><%= bill.customer_name || 'N/A' %></td>
+                                        <td><%= bill.customer_phone || 'N/A' %></td>
+                                    <% } else { %>
+                                        <td colspan="2"><%= bill.imported_from || 'N/A' %></td>
+                                    <% } %>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+
+            <% } else { %>
+                <h3>Aggregated Totals by <%= level.toUpperCase() %></h3>
+                
+                <% 
+                    let grandTotalTransactions = 0;
+                    let grandTotalValue = 0; 
+                %>
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered table-hover shadow-sm">
+                        <thead class="bg-dark text-white">
+                            <tr>
+                                <th scope="col">Period</th>
+                                <th scope="col" class="text-center">Total Transactions</th>
+                                <th scope="col" class="text-right">Total Value (SUM)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% data.forEach(row => { %>
+                                <% 
+                                    grandTotalTransactions += Number(row.total_transactions);
+                                    grandTotalValue += Number(row.total_value);
+                                %>
+                                <tr>
+                                    <td><%= row.report_date %></td>
+                                    
+                                    <td class="text-center">
+                                        <% if (level === 'month') { %>
+                                            <a href="/reports?type=<%= billType %>&level=monthly_detail&date=<%= row.report_date %>">
+                                                <%= row.total_transactions %> (View Items)
+                                            </a>
+                                        <% } else { %>
+                                            <%= row.total_transactions %>
+                                        <% } %>
+                                    </td>
+                                    
+                                    <td class="text-right"><%= Number(row.total_value).toFixed(2) %></td>
+                                </tr>
+                            <% }); %>
+                            <tr class="table-info font-weight-bold">
+                                <td>GRAND TOTAL</td>
+                                <td class="text-center"><%= grandTotalTransactions %></td>
+                                <td class="text-right"><%= Number(grandTotalValue).toFixed(2) %></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            <% } %>
+
+        <% } else { %>
+            <p class="alert alert-warning text-center p-3 rounded">No <%= billType %> bills found for this report type.</p>
+        <% } %>
+    <% } %>
+</div>

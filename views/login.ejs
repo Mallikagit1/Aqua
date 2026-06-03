@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    
+    <style>
+        /* --- Core Setup & Background --- */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5; /* Light body background */
+            margin: 0;
+            padding: 0;
+            min-height: 100vh; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- Main Layout Container (The entire white/blue card) --- */
+        .login-wrapper {
+            display: flex;
+            width: 90%;
+            max-width: 1000px;
+            min-height: 550px; /* Minimum height for desktop view */
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            overflow: hidden; /* Contains children border radius */
+            background-color: white;
+        }
+
+        /* --- Left Welcome Panel (The Blue Side) --- */
+        .welcome-panel {
+            flex: 1;
+            padding: 40px;
+            /* Blue Gradient background to match the image */
+            background: linear-gradient(135deg, #42a5f5 0%, #007bff 100%); 
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+        }
+        
+        .welcome-panel h1 {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .welcome-panel h2 {
+            font-size: 2.8em;
+            font-weight: 800;
+            margin: 10px 0;
+            letter-spacing: 1px;
+        }
+        
+        /* --- Right Login Panel (The White Side) --- */
+        .login-panel {
+            flex: 1;
+            padding: 50px 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background-color: white;
+        }
+
+        .login-panel h2 {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        /* --- Form Elements --- */
+        .login-panel input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box; 
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .login-panel input:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+        
+        /* --- Submit Button --- */
+        .login-panel button[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: 100%;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+        }
+
+        .login-panel button[type="submit"]:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        /* --- Error & Link Styles --- */
+        .error-message {
+            color: #dc3545;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .register-link {
+            margin-top: 25px;
+            font-size: 0.9em;
+            color: #666;
+            text-align: center;
+        }
+
+        .register-link a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* --- Mobile Responsiveness --- */
+        @media (max-width: 768px) {
+            .login-wrapper {
+                flex-direction: column;
+                min-height: auto;
+                width: 95%;
+                margin: 20px 0;
+            }
+            .welcome-panel {
+                padding: 30px 20px;
+                order: -1; /* Puts welcome panel above login panel on mobile */
+            }
+            .welcome-panel h2 {
+                font-size: 2em;
+            }
+            .login-panel {
+                padding: 40px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-wrapper">
+        
+        <!-- Left Panel: Welcome and Branding -->
+        <div class="welcome-panel">
+            <!-- Main Title from original header -->
+            <h1>Sri Vasavi Aqua Needs</h1>
+            
+            <h2 class="mt-4">WELCOME BACK</h2>
+            <p class="text-white opacity-75 mt-3">
+                Log in to access your inventory management dashboard.
+            </p>
+        </div>
+
+        <!-- Right Panel: Login Form -->
+        <div class="login-panel">
+            <h2>Login Account</h2>
+            
+            <% if (typeof error !== 'undefined' && error) { %>
+                <p class="error-message"><%= error %></p>
+            <% } %>
+
+            <form action="/admin/login" method="POST">
+                <input type="email" name="email" placeholder="Email" required />
+                <input type="password" name="password" placeholder="Password" required />
+                <button type="submit">Login</button>
+            </form>
+
+            <p class="register-link">
+                Don't have an account? <a href="/admin/register">Register</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

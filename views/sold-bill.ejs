@@ -1,0 +1,451 @@
+
+
+<section class="invoice-like-container p-4">
+<style>
+    /* --- Invoice-Inspired Look & Feel Styling (Unchanged CSS) --- */
+
+    :root {
+        --brand-color: #007bff; 
+        --accent-color: #ffc107; 
+        --dark-header-bg: #343a40; 
+        --text-color: #333;
+        --light-bg: #f8f9fa;
+        --border-color: #e9ecef;
+        --table-header-bg: #f2f2f2;
+        --success-green: #28a745; 
+        --danger-red: #dc3545;
+    }
+
+    /* General Body/Container Styling */
+    .invoice-like-container {
+        max-width: 1100px; 
+        margin: 0 auto;
+        background-color: white;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.05); 
+        border-radius: 8px;
+        overflow: hidden; 
+    }
+
+    /* --- Sri Vasavi Aqua Needs Header --- */
+    .app-header {
+        background-color: var(--brand-color);
+        color: white;
+        text-align: center;
+        padding: 20px 0;
+        font-size: 2.2em;
+        font-weight: bold;
+        letter-spacing: 1px;
+        margin-bottom: 30px; 
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+    }
+
+    .invoice-block {
+        padding: 0 40px 40px 40px; 
+    }
+
+    .invoice-summary-header {
+        background-color: var(--dark-header-bg);
+        color: white;
+        padding: 15px 25px;
+        border-radius: 5px;
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 1.1em;
+    }
+    .invoice-summary-header .title {
+        font-size: 1.8em;
+        font-weight: bold;
+        color: var(--accent-color);
+    }
+    .invoice-info {
+        text-align: right;
+    }
+
+    /* --- Page Title --- */
+    h2 {
+        color: var(--text-color);
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 25px;
+        text-align: center; 
+    }
+
+    /* --- Input Controls Layout --- */
+    .item-controls-card {
+        padding: 25px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+        background-color: var(--light-bg);
+        border: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .item-controls-row {
+        display: flex;
+        gap: 10px; 
+        align-items: flex-end; 
+        flex-wrap: wrap; 
+    }
+    
+    .control-group {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    /* Define flexible widths for the single line layout */
+    .control-group.product-select { flex-basis: 35%; min-width: 180px; }
+    .control-group.input-short { flex-basis: 15%; min-width: 90px; }
+    .control-group.add-btn-wrapper { flex-basis: auto; min-width: 100px; }
+
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 5px;
+        color: var(--text-color);
+        font-size: 0.95rem;
+    }
+
+    .form-control, .form-select {
+        padding: 10px 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 5px;
+        font-size: 0.95rem;
+        height: 44px; /* Uniform height */
+    }
+    #rateInput { background-color: #f5f5f5; color: #666; }
+
+    .add-item-btn {
+        background-color: var(--brand-color);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        height: 44px; 
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .add-item-btn:hover {
+        background-color: #0056b3;
+    }
+
+    /* --- Bill Items Table --- */
+    h3 {
+        color: var(--text-color);
+        font-size: 1.4rem;
+        font-weight: 600;
+        border-bottom: 1px dashed var(--border-color);
+        padding-bottom: 10px;
+    }
+
+    .table { margin-bottom: 30px; font-size: 0.9rem; }
+    .table-dark th { background-color: var(--table-header-bg); color: var(--text-color); font-weight: 600; border: 1px solid var(--border-color); padding: 12px 10px; }
+    .table-bordered th, .table-bordered td { border: 1px solid var(--border-color); padding: 10px; }
+    .table-striped tbody tr:nth-child(odd) { background-color: #fafafa; }
+
+    /* --- Totals & Summary --- */
+    .total-summary p { margin: 5px 0; font-size: 1rem; color: var(--text-color); }
+    .total-summary strong { min-width: 100px; text-align: right; font-weight: 700; }
+    .fs-4 { color: var(--brand-color) !important; font-weight: bold; border-top: 1px solid var(--border-color); padding-top: 10px; margin-top: 15px !important; }
+
+    /* --- Buttons & Final Actions --- */
+    .btn-secondary { background-color: #6c757d; border-color: #6c757d; }
+    .btn-success { background-color: var(--success-green); border-color: var(--success-green); }
+    .btn-danger { background-color: transparent; border: 1px solid var(--danger-red); color: var(--danger-red); }
+    
+    /* Responsive adjustment for small screens */
+    @media (max-width: 768px) {
+        .item-controls-row {
+            flex-direction: column;
+            gap: 10px;
+            align-items: stretch;
+        }
+        .control-group {
+            flex-basis: 100%;
+        }
+        .add-item-btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<header class="app-header">
+    Sri Vasavi Aqua Needs
+</header>
+
+<div class="invoice-block">
+    <div class="invoice-summary-header">
+        <div class="title">SALES BILL</div>
+        <div class="invoice-info">
+            <div>Invoice Date: <%= new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %></div>
+            <div>Bill NO: #<%= Math.floor(100000 + Math.random() * 900000) %></div> 
+        </div>
+    </div>
+    
+    <h2>Create Sold Bill</h2>
+    
+    <div class="item-controls-card mb-4">
+        <h4 style="font-weight: 600; margin-bottom: 15px; color: var(--brand-color);">Customer Details</h4>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="control-group">
+                    <label for="customerNameInput" class="form-label">Customer Name</label>
+                    <input type="text" id="customerNameInput" class="form-control" placeholder="Enter Customer Name" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="control-group">
+                    <label for="customerPhoneInput" class="form-label">Phone Number</label>
+                    <input type="text" id="customerPhoneInput" class="form-control" placeholder="Enter Phone Number" pattern="[0-9]*" title="Phone number must contain only digits" required>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="item-controls-card">
+        <div class="item-controls-row">
+            
+            <div class="control-group product-select">
+                <label for="productSelect" class="form-label">Product</label>
+                <select id="productSelect" class="form-select" onchange="updateRateAndStock()">
+                    <option value="">-- Select a Product --</option>
+                    <% products.forEach(product => { %>
+                        <option value="<%= product.pid %>" 
+                                data-name="<%= product.name %>"
+                                data-rate="<%= product.rate %>" 
+                                data-stock="<%= product.product_count %>">
+                            <%= product.name %> (Stock: <%= product.product_count %>)
+                        </option>
+                    <% }); %>
+                </select>
+            </div>
+            
+            <div class="control-group input-short">
+                <label for="qtyInput" class="form-label">Quantity</label>
+                <input type="number" id="qtyInput" class="form-control" placeholder="Qty" min="1" value="1">
+            </div>
+            
+            <div class="control-group input-short">
+                <label for="rateInput" class="form-label">Rate</label>
+                <input type="number" id="rateInput" class="form-control" placeholder="Rate" min="0.01" value="0.00" step="0.01">
+            </div>
+            
+            <div class="control-group input-short">
+                <label for="discountInput" class="form-label">Discount (%)</label>
+                <input type="number" id="discountInput" class="form-control" placeholder="Disc (%)" min="0" max="100" value="0">
+            </div>
+            
+            <div class="control-group add-btn-wrapper">
+                <button type="button" class="add-item-btn w-100" onclick="addItem()">Add Item</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end mb-3">
+        <a href="/dashboard" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+
+    <h3>Bill Items</h3>
+    <form id="soldBillForm">
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Product Name</th>
+                    <th>Qty</th>
+                    <th>Rate</th>
+                    <th>Discount (%)</th>
+                    <th>Subtotal (Pre-Disc)</th>
+                    <th>Subtotal (Post-Disc)</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="billBody">
+            </tbody>
+        </table>
+
+        <div class="row mt-3 total-summary">
+            <div class="col-md-6 offset-md-6 text-end">
+                <p class="fs-5">Subtotal (Before Discount): <strong id="subtotalDisplay">0.00</strong></p>
+                <p class="fs-5">Total Discount: <strong id="totalDiscountDisplay">0.00</strong></p>
+                <p class="fs-4 text-success">Final Total (After Discount): <strong id="finalTotalDisplay">0.00</strong></p>
+            </div>
+        </div>
+
+        <div class="d-grid mt-4">
+            <button type="submit" class="btn btn-success btn-lg" id="createBillBtn" disabled>Create Full Bill</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    let billItems = []; 
+
+    function updateRateAndStock() {
+        const productSelect = document.getElementById('productSelect');
+        const selectedOption = productSelect.options[productSelect.selectedIndex];
+        const rateInput = document.getElementById('rateInput');
+        
+        if (selectedOption.value) {
+            rateInput.value = selectedOption.getAttribute('data-rate');
+        } else {
+            rateInput.value = '0.00';
+        }
+    }
+
+    function calculateTotals() {
+        let subtotal = 0;
+        let finalTotal = 0;
+
+        billItems.forEach(item => {
+            subtotal += item.subtotal_pre_disc;
+            finalTotal += item.subtotal_post_disc;
+        });
+
+        const totalDiscount = subtotal - finalTotal;
+
+        document.getElementById('subtotalDisplay').innerText = subtotal.toFixed(2);
+        document.getElementById('totalDiscountDisplay').innerText = totalDiscount.toFixed(2);
+        document.getElementById('finalTotalDisplay').innerText = finalTotal.toFixed(2);
+        document.getElementById('createBillBtn').disabled = billItems.length === 0;
+    }
+
+    function addItem() {
+        const productSelect = document.getElementById('productSelect');
+        const productId = productSelect.value;
+        const quantity = parseInt(document.getElementById('qtyInput').value);
+        const rate = parseFloat(document.getElementById('rateInput').value);
+        const discountPercent = parseFloat(document.getElementById('discountInput').value);
+        
+        if (!productId || quantity <= 0 || isNaN(rate) || rate <= 0 || isNaN(discountPercent)) {
+            alert('Please complete all valid fields (Product, Qty > 0, Rate > 0).');
+            return;
+        }
+
+        const selectedOption = productSelect.options[productSelect.selectedIndex];
+        const currentStock = parseInt(selectedOption.getAttribute('data-stock'));
+        
+        if (currentStock < quantity) {
+            alert(`Insufficient stock! Available: ${currentStock}. Requested: ${quantity}.`);
+            return;
+        }
+
+        const productName = selectedOption.getAttribute('data-name');
+        const subtotalPreDisc = quantity * rate;
+        const discountAmount = subtotalPreDisc * (discountPercent / 100);
+        const subtotalPostDisc = subtotalPreDisc - discountAmount;
+
+        const newItem = {
+            product_id: productId,
+            product_name: productName, 
+            quantity: quantity,
+            rate: rate,
+            discount_percent: discountPercent,
+            subtotal_pre_disc: subtotalPreDisc,
+            subtotal_post_disc: subtotalPostDisc
+        };
+
+        const existingIndex = billItems.findIndex(item => item.product_id === newItem.product_id);
+        if (existingIndex > -1) {
+            alert(`Product ${productName} already in bill. Replacing the existing entry with the new quantity/rate.`);
+            billItems[existingIndex] = newItem;
+        } else {
+            billItems.push(newItem);
+        }
+
+        renderTable();
+        
+        // Reset inputs
+        productSelect.value = "";
+        document.getElementById('qtyInput').value = 1;
+        document.getElementById('rateInput').value = 0.00;
+        document.getElementById('discountInput').value = 0;
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('billBody');
+        tbody.innerHTML = '';
+        
+        billItems.forEach((item, index) => {
+            const row = tbody.insertRow();
+            row.insertCell().innerText = item.product_name;
+            row.insertCell().innerText = item.quantity;
+            row.insertCell().innerText = item.rate.toFixed(2);
+            row.insertCell().innerText = item.discount_percent.toFixed(1) + '%';
+            row.insertCell().innerText = item.subtotal_pre_disc.toFixed(2);
+            row.insertCell().innerText = item.subtotal_post_disc.toFixed(2);
+            
+            const actionCell = row.insertCell();
+            const removeBtn = document.createElement('button');
+            removeBtn.innerText = 'Remove';
+            removeBtn.className = 'btn btn-sm btn-danger';
+            removeBtn.onclick = () => removeItem(index);
+            actionCell.appendChild(removeBtn);
+        });
+        calculateTotals();
+    }
+
+    function removeItem(index) {
+        billItems.splice(index, 1);
+        renderTable();
+    }
+
+    document.getElementById('soldBillForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // Get customer data
+        const customerName = document.getElementById('customerNameInput').value.trim();
+        const customerPhone = document.getElementById('customerPhoneInput').value.trim();
+        
+        if (!customerName || !customerPhone) {
+            alert("Please enter the customer's Name and Phone Number.");
+            return;
+        }
+
+        if (billItems.length === 0) {
+            alert("Please add at least one item to the bill.");
+            return;
+        }
+        
+        const subtotal = parseFloat(document.getElementById('subtotalDisplay').innerText);
+        const finalTotal = parseFloat(document.getElementById('finalTotalDisplay').innerText);
+        const totalDiscount = subtotal - finalTotal;
+
+        document.getElementById('createBillBtn').disabled = true;
+
+        try {
+            const response = await fetch('/sold-bill', { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    billItems: billItems,
+                    subtotal: subtotal,
+                    finalTotal: finalTotal,
+                    totalDiscount: totalDiscount,
+                    // Send customer data to the server
+                    customerName: customerName,
+                    customerPhone: customerPhone
+                })
+            });
+
+            const result = await response.json();
+            
+            if (response.ok) {
+                alert(result.message);
+                window.location.href = '/dashboard'; 
+            } else {
+                alert(`Error: ${result.message}`);
+            }
+        } catch (error) {
+            console.error('Submission Error:', error);
+            alert('An unexpected error occurred during submission.');
+        } finally {
+            document.getElementById('createBillBtn').disabled = false;
+        }
+    });
+
+    updateRateAndStock(); 
+    renderTable(); 
+</script>
+</section>
