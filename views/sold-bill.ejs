@@ -212,12 +212,12 @@
                 <select id="productSelect" class="form-select" onchange="updateRateAndStock()">
                     <option value="">-- Select a Product --</option>
                     <% products.forEach(product => { %>
-                        <option value="<%= product.pid %>" 
-                                data-name="<%= product.name %>"
-                                data-rate="<%= product.rate %>" 
-                                data-stock="<%= product.product_count %>">
-                            <%= product.name %> (Stock: <%= product.product_count %>)
-                        </option>
+                       <option value="<%= product._id %>" 
+        data-name="<%= product.name %>"
+        data-rate="<%= product.product_rate %>" 
+        data-stock="<%= product.product_count %>">
+    <%= product.name %> (Stock: <%= product.product_count %>)
+</option>
                     <% }); %>
                 </select>
             </div>
@@ -312,56 +312,82 @@
     }
 
     function addItem() {
-        const productSelect = document.getElementById('productSelect');
-        const productId = productSelect.value;
-        const quantity = parseInt(document.getElementById('qtyInput').value);
-        const rate = parseFloat(document.getElementById('rateInput').value);
-        const discountPercent = parseFloat(document.getElementById('discountInput').value);
-        
-        if (!productId || quantity <= 0 || isNaN(rate) || rate <= 0 || isNaN(discountPercent)) {
-            alert('Please complete all valid fields (Product, Qty > 0, Rate > 0).');
-            return;
-        }
 
-        const selectedOption = productSelect.options[productSelect.selectedIndex];
-        const currentStock = parseInt(selectedOption.getAttribute('data-stock'));
-        
-        if (currentStock < quantity) {
-            alert(`Insufficient stock! Available: ${currentStock}. Requested: ${quantity}.`);
-            return;
-        }
 
-        const productName = selectedOption.getAttribute('data-name');
-        const subtotalPreDisc = quantity * rate;
-        const discountAmount = subtotalPreDisc * (discountPercent / 100);
-        const subtotalPostDisc = subtotalPreDisc - discountAmount;
+const productSelect = document.getElementById('productSelect');
+const productId = productSelect.value;
 
-        const newItem = {
-            product_id: productId,
-            product_name: productName, 
-            quantity: quantity,
-            rate: rate,
-            discount_percent: discountPercent,
-            subtotal_pre_disc: subtotalPreDisc,
-            subtotal_post_disc: subtotalPostDisc
-        };
+const quantity = Number(document.getElementById('qtyInput').value);
+const rate = Number(document.getElementById('rateInput').value);
+const discountPercent = Number(document.getElementById('discountInput').value);
 
-        const existingIndex = billItems.findIndex(item => item.product_id === newItem.product_id);
-        if (existingIndex > -1) {
-            alert(`Product ${productName} already in bill. Replacing the existing entry with the new quantity/rate.`);
-            billItems[existingIndex] = newItem;
-        } else {
-            billItems.push(newItem);
-        }
+if (!productId || quantity <= 0 || rate <= 0) {
+    alert('Please select a product and enter valid values.');
+    return;
+}
 
-        renderTable();
-        
-        // Reset inputs
-        productSelect.value = "";
-        document.getElementById('qtyInput').value = 1;
-        document.getElementById('rateInput').value = 0.00;
-        document.getElementById('discountInput').value = 0;
-    }
+const selectedOption =
+    productSelect.options[productSelect.selectedIndex];
+
+const currentStock =
+    Number(selectedOption.getAttribute('data-stock'));
+
+if (quantity > currentStock) {
+    alert(
+        `Insufficient stock. Available: ${currentStock}`
+    );
+    return;
+}
+
+const productName =
+    selectedOption.getAttribute('data-name');
+
+const subtotalPreDisc = quantity * rate;
+
+const discountAmount =
+    subtotalPreDisc * (discountPercent / 100);
+
+const subtotalPostDisc =
+    subtotalPreDisc - discountAmount;
+
+const newItem = {
+    product_id: productId,
+    product_name: productName,
+    quantity: quantity,
+    rate: rate,
+    discount_percent: discountPercent,
+    subtotal_pre_disc: subtotalPreDisc,
+    subtotal_post_disc: subtotalPostDisc
+};
+
+const existingIndex = billItems.findIndex(
+    item => item.product_id === productId
+);
+
+if (existingIndex > -1) {
+
+    billItems[existingIndex] = newItem;
+
+    alert(
+        `${productName} already exists in bill. Updated values.`
+    );
+
+} else {
+
+    billItems.push(newItem);
+
+    selectedOption.disabled = true;
+}
+
+renderTable();
+
+productSelect.value = "";
+document.getElementById('qtyInput').value = 1;
+document.getElementById('rateInput').value = "0.00";
+document.getElementById('discountInput').value = 0;
+
+
+}
 
     function renderTable() {
         const tbody = document.getElementById('billBody');
