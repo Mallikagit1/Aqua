@@ -289,9 +289,9 @@
                 <select id="productSelect" class="form-select">
                     <option value="">-- Select a Product --</option>
                     <% products.forEach(product => { %>
-                        <option value="<%= product.pid %>" data-name="<%= product.name %>">
-                            <%= product.name %> (Stock: <%= product.product_count %>)
-                        </option>
+                       <option value="<%= product._id %>" data-name="<%= product.name %>">
+    <%= product.name %> (Stock: <%= product.product_count %>)
+</option>
                     <% }); %>
                 </select>
             </div>

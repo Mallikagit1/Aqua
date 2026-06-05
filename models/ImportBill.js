@@ -1,3 +1,4 @@
+
 const mongoose = require("mongoose");
 
 const importBillSchema = new mongoose.Schema({
@@ -21,5 +22,7 @@ const importBillSchema = new mongoose.Schema({
     createdAt: "bill_date"
   }
 });
+
+
 
 module.exports = mongoose.model("ImportBill", importBillSchema);
