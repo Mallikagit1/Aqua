@@ -12,14 +12,16 @@ require("dotenv").config();
 // =================== INITIALIZE APP ===================
 const app = express();
 const PORT = process.env.PORT || 3000;
-
+app.set('trust proxy', 1);
 // =================== MIDDLEWARES ===================
 
 app.use(session({
     secret: process.env.SESSION_SECRET || 'a-very-secret-key-that-you-should-change',
     resave: false,
-    saveUninitialized: true,
-    cookie: { secure: process.env.NODE_ENV === 'production' }
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production'
+    }
 }));
 
 app.use(bodyParser.json());
@@ -79,6 +81,9 @@ app.get("/admin/register", (req, res) => {
 });
 
 app.get("/dashboard", (req, res) => {
+
+    console.log("Dashboard Session:", req.session);
+
     if (!req.session.adminId) {
         return res.redirect("/login");
     }
@@ -124,8 +129,12 @@ app.post("/admin/login", async (req, res) => {
             return res.render("login", { title: "Login", error: "Invalid email or password" });
         }
         req.session.adminId = admin.id;
-        req.session.adminEmail = admin.email;
-        res.redirect("/dashboard");
+req.session.adminEmail = admin.email;
+
+console.log("Login successful");
+console.log(req.session);
+
+res.redirect("/dashboard");
     } catch (err) {
         console.error("Login error:", err);
         res.render('message', { message: '❌ Login failed due to a server error.', backLink: '/login' });
